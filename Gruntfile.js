@@ -160,19 +160,19 @@ module.exports = exports = function(grunt) {
                 }
             }
         },
-        uglify: {
-            localforage: {
-                files: {
-                    'dist/localforage.min.js': ['dist/localforage.js'],
-                    'dist/localforage.nopromises.min.js': [
-                        'dist/localforage.nopromises.js'
-                    ]
-                },
-                options: {
-                    banner: BANNER
-                }
-            }
-        },
+        // uglify: {
+        //     localforage: {
+        //         files: {
+        //             'dist/localforage.min.js': ['dist/localforage.js'],
+        //             'dist/localforage.nopromises.min.js': [
+        //                 'dist/localforage.nopromises.js'
+        //             ]
+        //         },
+        //         options: {
+        //             banner: BANNER
+        //         }
+        //     }
+        // },
         watch: {
             build: {
                 files: ['src/*.js', 'src/**/*.js'],
@@ -207,7 +207,7 @@ module.exports = exports = function(grunt) {
 
     grunt.registerTask('default', ['build', 'connect', 'watch']);
     grunt.registerTask('build', ['browserify:main', 'browserify:no_promises',
-        'concat', 'es3_safe_recast', 'uglify']);
+        'concat', 'es3_safe_recast']);
     grunt.registerTask('serve', ['build', 'connect:test', 'watch']);
 
     // These are the test tasks we run regardless of Sauce Labs credentials.
@@ -232,6 +232,7 @@ module.exports = exports = function(grunt) {
         var totaltestsFailed = 0;
         var totalDuration = 0;
         var urls = [
+                 'http://localhost:9999/test/test.jiyang.html',
                  'http://localhost:9999/test/test.main1.html',
                  'http://localhost:9999/test/test.min.html',
                  'http://localhost:9999/test/test.polyfill.html',

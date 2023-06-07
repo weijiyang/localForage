@@ -84,6 +84,7 @@ function extend() {
 
 class LocalForage {
     constructor(options) {
+        debugger;
         for (let driverTypeKey in DefaultDrivers) {
             if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
                 const driver = DefaultDrivers[driverTypeKey];

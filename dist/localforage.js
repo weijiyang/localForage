@@ -2512,6 +2512,7 @@ var LocalForage = function () {
     function LocalForage(options) {
         _classCallCheck(this, LocalForage);
 
+        debugger;
         for (var driverTypeKey in DefaultDrivers) {
             if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
                 var driver = DefaultDrivers[driverTypeKey];
