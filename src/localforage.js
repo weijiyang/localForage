@@ -10,7 +10,7 @@ import isArray from './utils/isArray';
 
 // Drivers are stored here when `defineDriver()` is called.
 // They are shared across all instances of localForage.
-const DefinedDrivers = {};
+const DefinedDrivers = {}; // 用来存储实例
 
 const DriverSupport = {};
 
@@ -84,13 +84,14 @@ function extend() {
 
 class LocalForage {
     constructor(options) {
-        debugger;
+        // DefaultDrivers: asyncStorage、webSQLStorage、localStorageWrapper
         for (let driverTypeKey in DefaultDrivers) {
             if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
                 const driver = DefaultDrivers[driverTypeKey];
                 const driverName = driver._driver;
-                this[driverTypeKey] = driverName;
+                this[driverTypeKey] = driverName; // eg: localforage.INDEXEDDB就可获取到， 方便后续config配置
 
+                // export首次实例化默认全部初始化，方便后续再次实例化引用
                 if (!DefinedDrivers[driverName]) {
                     // we don't need to wait for the promise,
                     // since the default drivers can be defined
@@ -100,14 +101,14 @@ class LocalForage {
             }
         }
 
-        this._defaultConfig = extend({}, DefaultConfig);
-        this._config = extend({}, this._defaultConfig, options);
-        this._driverSet = null;
+        this._defaultConfig = extend({}, DefaultConfig); // 初始化使用的默认配置
+        this._config = extend({}, this._defaultConfig, options); // 初始化配置，或者用户设置的配置
+        this._driverSet = null; // 设置当前需要使用的存储方式promise,方便后续执行callback
         this._initDriver = null;
-        this._ready = false;
+        this._ready = false; // 存储初始化promise
         this._dbInfo = null;
 
-        this._wrapLibraryMethodsWithReady();
+        this._wrapLibraryMethodsWithReady(); // 遍历driver方法并改变this指向
         this.setDriver(this._config.driver).catch(() => {});
     }
 
@@ -305,7 +306,7 @@ class LocalForage {
         function setDriverToConfig() {
             self._config.driver = self.driver();
         }
-
+        // 将driver属性赋值localforage, 初始化ready方法
         function extendSelfWithDriver(driver) {
             self._extend(driver);
             setDriverToConfig();
@@ -327,8 +328,8 @@ class LocalForage {
                         self._ready = null;
 
                         return self
-                            .getDriver(driverName)
-                            .then(extendSelfWithDriver)
+                            .getDriver(driverName) // 获取用户设置的driver
+                            .then(extendSelfWithDriver) // 将driver属性方法赋值到localforage
                             .catch(driverPromiseLoop);
                     }
 
@@ -344,9 +345,7 @@ class LocalForage {
             };
         }
 
-        // There might be a driver initialization in progress
-        // so wait for it to finish in order to avoid a possible
-        // race condition to set _dbInfo
+        // 可能正在进行驱动程序初始化，因此等待它完成以避免设置 _dbInfo 的可能竞争条件
         const oldDriverSetDone =
             this._driverSet !== null
                 ? this._driverSet.catch(() => Promise.resolve())
@@ -396,10 +395,7 @@ class LocalForage {
     }
 
     _wrapLibraryMethodsWithReady() {
-        // Add a stub for each driver API method that delays the call to the
-        // corresponding driver method until localForage is ready. These stubs
-        // will be replaced by the driver methods as soon as the driver is
-        // loaded, so there is no performance impact.
+        // 为每个驱动程序 API 方法添加一个存根，延迟对相应驱动程序方法的调用，直到 localForage 准备就绪。 一旦加载驱动程序，这些存根将被驱动程序方法替换，因此不会影响性能。
         for (let i = 0, len = LibraryMethods.length; i < len; i++) {
             callWhenReady(this, LibraryMethods[i]);
         }
